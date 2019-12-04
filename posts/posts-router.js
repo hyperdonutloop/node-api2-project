@@ -40,7 +40,8 @@ router.get('/:id', (req, res) => {
 // 404 not found
 // 500 error in retrieving
 router.get('/:id/comments', (req, res) => {
-  Posts.findCommentById(req.params.id)
+
+  Posts.findPostComments(req.params.id)
   .then(posts => {
     if(posts) {
       res.status(200).json(posts)
