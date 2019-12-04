@@ -73,7 +73,56 @@ router.post('/', (req, res) => {
   }
 })
 
+// POST request to add comment to specified blog post
+// 404 - id not found
+// 400 - request body is missing text property
+// 201- created
+// 500 - error while saving
 
+router.post('/:id/comments', (req, res) => {
+  const text = req.body;
+
+  if (!text) {
+    res.status(400).json({ errorMessage: 'Please provide text for the comment' });
+  } else {
+    Posts.findById(req.params.id)
+    .then(post => {
+      if(post) {
+        text.post_id = req.params.id
+        Posts.insertComment(text)
+        .then(newComment => {
+          Posts.findCommentById(newComment.id)
+          .then(comment => {
+            res.status(201).json(comment)
+          })
+        })
+      } else {
+        res.status(404).json({ errorMessage: 'error message'});
+      }
+    })
+    .catch(error => {
+      res.status(500).json({ errorMessage: 'There was an error while saving comment to database.', error });
+    })
+  }
+})
+
+// DELETE - removes post with specified ID and returns deleted post object
+// 404 - id not found + error message
+// 500 - error removing post + error message
+
+router.delete('/:id', (req, res) => {
+  Posts.remove(req.params.id)
+  .then(post => {
+    if(post) {
+      res.status(200).json({ message: 'The Post has been destroyed!'})
+    } else {
+      res.status(404).json({ errorMessage: 'The Post with the specified ID does not exist.' });
+    }
+  })
+  .catch(error => {
+    res.status(500).json({ errorMessage: 'The post could not be removed', error });
+  });
+});
 
 
 module.exports = router;
