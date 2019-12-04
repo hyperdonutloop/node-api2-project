@@ -136,7 +136,6 @@ router.put('/:id', (req, res) => {
   if (!title || !contents) {
     res.status(400).json({ errorMessage: 'Please provide title and contents for the post' })
   } else {
-
   Posts.update(req.params.id, req.body)
   .then(post => {
     if(post) {
