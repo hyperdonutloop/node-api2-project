@@ -124,5 +124,32 @@ router.delete('/:id', (req, res) => {
   });
 });
 
+// PUT request 
+// 404 - id not found
+// 400 - title and body are missing
+// 500 - catch error
+// 200 - valid post data
+
+router.put('/:id', (req, res) => {
+  const { title, contents } = req.body;
+
+  if (!title || !contents) {
+    res.status(400).json({ errorMessage: 'Please provide title and contents for the post' })
+  } else {
+
+  Posts.update(req.params.id, req.body)
+  .then(post => {
+    if(post) {
+      res.status(200).json(post);
+    } else {
+      res.status(404).json({ errorMessage: 'The Post with the specified ID could not be found' })
+    }
+  })
+  .catch(error => {
+    res.status(500).json({ errorMessage: 'The Post information could not be modified', error})
+  });
+}
+});
+
 
 module.exports = router;
