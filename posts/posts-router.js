@@ -78,33 +78,32 @@ router.post('/', (req, res) => {
 // 400 - request body is missing text property
 // 201- created
 // 500 - error while saving
-
 router.post('/:id/comments', (req, res) => {
-  const text = req.body;
+  const id = req.params.id;
+  const newComment = req.body;
 
-  if (!text) {
-    res.status(400).json({ errorMessage: 'Please provide text for the comment' });
+  if (!newComment.text) {
+    res.status(400).json({ errorMessage: "Please provide text for the comment." });
   } else {
-    Posts.findById(req.params.id)
+    Posts.findById(id)
     .then(post => {
-      if(post) {
-        text.post_id = req.params.id
-        Posts.insertComment(text)
-        .then(newComment => {
-          Posts.findCommentById(newComment.id)
-          .then(comment => {
-            res.status(201).json(comment)
-          })
+      if (post.length !==0) {
+        Posts.insertComment(newComment)
+        .then(comment => {
+          res.status(201).json({ ...comment, ...newComment })
         })
+        .catch(error => {
+          res.status(500).json({ errorMessage: 'There was an error while saving comment to database.', error })
+        });
       } else {
-        res.status(404).json({ errorMessage: 'error message'});
+        res.status(404).json({ errorMessage: 'The post with the specified ID does not exist '})
       }
     })
     .catch(error => {
-      res.status(500).json({ errorMessage: 'There was an error while saving comment to database.', error });
-    })
+      res.status(500).json({ errorMessage: 'There was an error while saving comment to database', error })
+    });
   }
-})
+});
 
 // DELETE - removes post with specified ID and returns deleted post object
 // 404 - id not found + error message
